@@ -218,10 +218,29 @@ if(window.speechSynthesis){
   pickPolishVoice();
   speechSynthesis.onvoiceschanged=pickPolishVoice;
 }
+function normalizeName(name){
+  const raw=String(name||'').trim();
+  const map={
+    'Phillips_str_1':'Philips 1',
+    'Phillips_str_2':'Philips 2',
+    'Phillips_Hue':'Philips Hue',
+    'Flair_str_1':'Flair 1',
+    'Flair_str_2':'Flair 2',
+    'Jarzeniowki_str_1':'Jarzeni?wki 1',
+    'Jarzeniowki_str_2':'Jarzeni?wki 2',
+    'Radius_Led':'Radium',
+    'Radium_Led':'Radium',
+    'Ledvance':'Ledvance',
+    'Sylvania':'Sylvania',
+    'specjale':'Specjalne',
+    'nan':'Jarzeni?wki 2'
+  };
+  return map[raw]||raw.replace(/_/g,' ');
+}
 function speak(text){
   if(!window.speechSynthesis)return;
   speechSynthesis.cancel();
-  const clean=String(text).replace(/_/g,' ');
+  const clean=normalizeName(text);
   const u=new SpeechSynthesisUtterance(clean);
   u.lang='pl-PL';
   u.rate=0.95;
@@ -1461,7 +1480,7 @@ function replaceShelvesFromSupabase(shelves, items){
     if(!shelf||!next[shelf.shelf_key])continue;
     next[shelf.shelf_key].items[String(item.position)]={
       ean:String(item.ean),
-      name:item.product_name||item.list_name||shelf.label
+      name:normalizeName(item.product_name||item.list_name||shelf.label)
     };
   }
   Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
@@ -1475,7 +1494,7 @@ function replaceDbFromSupabase(items){
     .sort((a,b)=>String(a.list_name||a.product_name||'').localeCompare(String(b.list_name||b.product_name||''),'pl') || Number(a.position)-Number(b.position))
     .map(item=>({
       ean:String(item.ean),
-      name:item.product_name||item.list_name||'',
+      name:normalizeName(item.product_name||item.list_name||''),
       location:String(item.position),
       quantity:0,
       price:0
@@ -1485,25 +1504,25 @@ function replaceDbFromSupabase(items){
 }
 
 async function loadSupabaseData(){
-  setStartupStatus('Lacze z Supabase...', true);
+  setStartupStatus('??cz? z Supabase...', true);
   const stores=await supabaseGet('stores', {select:'id,name', name:'eq.'+SUPABASE_STORE_NAME, active:'eq.true', limit:'1'});
   if(!stores.length)throw new Error('Nie znaleziono sklepu Hornbach w tabeli stores');
   const storeId=stores[0].id;
   const shelves=await supabaseGet('shelves', {select:'id,label,shelf_key,rows_config', store_id:'eq.'+storeId});
-  if(!shelves.length)throw new Error('Nie znaleziono regalow dla Hornbach');
+  if(!shelves.length)throw new Error('Nie znaleziono rega??w dla Hornbach');
   const shelfIds=shelves.map(s=>s.id).join(',');
   const items=await supabaseGet('shelf_items', {select:'shelf_id,position,ean,product_name,list_name', shelf_id:'in.('+shelfIds+')', order:'position.asc'});
-  if(!items.length)throw new Error('Nie znaleziono pozycji towarow dla Hornbach');
+  if(!items.length)throw new Error('Nie znaleziono pozycji towar?w dla Hornbach');
   replaceShelvesFromSupabase(shelves, items);
   replaceDbFromSupabase(items);
-  localStorage.setItem('mag_supabase_cache_v1', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
+  localStorage.setItem('mag_supabase_cache_v2', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
   setStartupStatus('Dane z Supabase: '+items.length+' pozycji', true);
-  document.getElementById('db-count').textContent=items.length+' towarow';
+  document.getElementById('db-count').textContent=items.length+' towar?w';
 }
 
 function loadSupabaseCache(){
   try{
-    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v1')||'null');
+    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v2')||'null');
     if(!cached||!cached.shelves||!cached.db)return false;
     Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
     Object.assign(SHELVES,cached.shelves);
@@ -1521,7 +1540,7 @@ async function initApp(){
     await loadSupabaseData();
   }catch(e){
     console.error(e);
-    if(!loadSupabaseCache())setStartupStatus('Tryb lokalny - brak polaczenia z baza', false);
+    if(!loadSupabaseCache())setStartupStatus('Tryb lokalny - brak po??czenia z baz?', false);
   }
   setTimeout(()=>{startListening();},800);
 }
