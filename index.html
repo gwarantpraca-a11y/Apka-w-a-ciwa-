@@ -81,7 +81,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
   <div class="mic-section">
     <button class="mic-btn listening" id="mic-btn" onclick="toggleListening()">
       <svg style="width:24px;height:24px;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-1 17.93V21h-2v2h6v-2h-2v-2.07A8 8 0 0 0 20 11h-2a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.93z"/></svg>
-      <span id="mic-btn-label">ZATRZYMAJ NASÅUCHIWANIE</span>
+      <span id="mic-btn-label">Zatrzymaj nasÅ‚uchiwanie</span>
     </button>
   </div>
   <div class="heard-row"><span class="heard-label">Ostatnio sÅ‚yszÄ™:</span><span class="heard-val" id="heard-val">â€”</span></div>
@@ -151,13 +151,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .shelf-bn{font-size:7px;color:#888;font-weight:700;text-align:center;line-height:1.6;width:100%}
 .shelf-ptag{height:5px;background:linear-gradient(to right,#FF5500,#FF8800);width:100%}
 .shelf-floor{height:14px;background:#bbb;border-top:2px solid #aaa;margin:0 10px 14px}
+.shelf-multi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 8px 12px}.shelf-mini{background:#fff;border:1px solid #D9D9D9;border-radius:8px;overflow:hidden}.shelf-mini .shelf-sign{font-size:12px;margin:0;border-radius:0;padding:8px}.shelf-mini .shelf-body{margin:0;border-left:none;border-right:none}.shelf-mini .shelf-row{min-height:22px;padding-top:2px}.shelf-mini .shelf-svgwrap{height:18px}.shelf-mini .shelf-rowlabel{font-size:8px;padding:2px 4px}.shelf-mini .shelf-bn{font-size:6px}.shelf-mini .shelf-floor{height:8px;margin:0}.shelf-mini .shelf-prod.on{transform:translateY(-5px)}
+@media(max-width:520px){.shelf-multi-grid{grid-template-columns:1fr 1fr;gap:6px;padding:0 6px 10px}.shelf-mini .shelf-sign{font-size:11px;padding:7px 4px}.shelf-mini .shelf-rowlabel{display:none}}
 </style>
 <script>
 let db=[];
 function loadDB(){try{db=JSON.parse(localStorage.getItem('mag_v2')||'[]');}catch(e){db=[];}updateCount();}
 function saveDB(){localStorage.setItem('mag_v2',JSON.stringify(db));updateCount();}
 function updateCount(){document.getElementById('db-count').textContent=db.length+' towarÃ³w';}
-function showTab(n){['add','scan-list','list','shelf'].forEach(t=>{document.getElementById('panel-'+t).classList.toggle('active',t===n);document.getElementById('tab-'+t).classList.toggle('active',t===n);});if(n==='list')renderList();if(n==='shelf'){if(activeShelfKey){document.getElementById('shelf-picker').style.display='none';document.getElementById('shelf-view').style.display='block';}else{renderShelfPicker();}}}
+function showTab(n){['add','scan-list','list','shelf'].forEach(t=>{document.getElementById('panel-'+t).classList.toggle('active',t===n);document.getElementById('tab-'+t).classList.toggle('active',t===n);});if(n==='list')renderList();if(n==='shelf'){if(activeShelfMatches.length||activeShelfKey){document.getElementById('shelf-picker').style.display='none';document.getElementById('shelf-view').style.display='block';}else{renderShelfPicker();}}}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let recognition=null,listening=false,restartTimer=null;
 function toggleListening(){if(listening)stopListening();else startListening();}
@@ -182,7 +184,7 @@ function scheduleRestart(d){clearTimeout(restartTimer);if(listening)restartTimer
 function updateMicUI(on){
   document.getElementById('mic-dot').className='mic-status-dot'+(on?'':' off');
   document.getElementById('mic-btn').className='mic-btn '+(on?'listening':'stopped');
-  document.getElementById('mic-btn-label').textContent=on?'ZATRZYMAJ NASÅUCHIWANIE':'WÅÄ„CZ NASÅUCHIWANIE';
+  document.getElementById('mic-btn-label').textContent=on?'Zatrzymaj nasÅ‚uchiwanie':'WÅ‚Ä…cz nasÅ‚uchiwanie';
   document.getElementById('status-label').textContent=on?'NasÅ‚uchiwanie aktywne':'NasÅ‚uchiwanie zatrzymane';
 }
 function spokenToDigits(text){
@@ -226,16 +228,29 @@ function normalizeName(name){
     'Phillips_Hue':'Philips Hue',
     'Flair_str_1':'Flair 1',
     'Flair_str_2':'Flair 2',
-    'Jarzeniowki_str_1':'Jarzeni?wki 1',
-    'Jarzeniowki_str_2':'Jarzeni?wki 2',
+    'Jarzeniowki_str_1':'JarzeniÃ³wki 1',
+    'Jarzeniowki_str_2':'JarzeniÃ³wki 2',
     'Radius_Led':'Radium',
     'Radium_Led':'Radium',
     'Ledvance':'Ledvance',
     'Sylvania':'Sylvania',
     'specjale':'Specjalne',
-    'nan':'Jarzeni?wki 2'
+    'nan':'JarzeniÃ³wki 2'
   };
   return map[raw]||raw.replace(/_/g,' ');
+}
+function shelfLabel(key, label){
+  const map={
+    philips:'Philips LED',
+    sylvania:'Sylvania LED',
+    ledvance:'Ledvance',
+    philips_hue:'Philips Hue',
+    flair:'Flair LED',
+    jarzeniowki:'JarzeniÃ³wki',
+    specjale:'Specjalne',
+    radium:'Radium'
+  };
+  return map[key]||label||key;
 }
 function speak(text){
   if(!window.speechSynthesis)return;
@@ -1304,7 +1319,7 @@ function preloadBuiltinDB(){
   saveDB();localStorage.setItem('mag_preloaded_v5','1');
 }
 // === WIRTUALNE REGAÅY ===
-let activeShelfKey=null, activeShelfPos=[];
+let activeShelfKey=null, activeShelfPos=[], activeShelfMatches=[];
 
 function shelfIcon(d){
   d = d || '';
@@ -1328,88 +1343,122 @@ function shelfIcon(d){
 function renderShelfPicker(){
   document.getElementById('shelf-picker').style.display='block';
   document.getElementById('shelf-view').style.display='none';
-  activeShelfKey=null;
+  activeShelfKey=null; activeShelfMatches=[];
   const wrap=document.getElementById('shelf-picker');
   wrap.innerHTML=Object.entries(SHELVES).map(([key,s])=>{
     const count=Object.keys(s.items).length;
-    return `<div class="shelf-pick-card" onclick="openShelf('${key}')"><div><div class="shelf-pick-name">${s.label}</div><div class="shelf-pick-count">${count} pozycji</div></div><span style="font-size:20px;color:#CCC">â€º</span></div>`;
+    return `<div class="shelf-pick-card" onclick="openShelf('${key}')"><div><div class="shelf-pick-name">${shelfLabel(key,s.label)}</div><div class="shelf-pick-count">${count} pozycji</div></div><span style="font-size:20px;color:#CCC">â€º</span></div>`;
   }).join('');
 }
 
 function openShelf(key){
-  activeShelfKey=key; activeShelfPos=[];
+  activeShelfKey=key; activeShelfPos=[]; activeShelfMatches=[];
   document.getElementById('shelf-picker').style.display='none';
   const view=document.getElementById('shelf-view');
   view.style.display='block';
   renderShelf();
 }
 
-function renderShelf(){
-  const s=SHELVES[activeShelfKey];
-  if(!s)return;
-  let h=`<div class="shelf-back"><button onclick="renderShelfPicker()">â€¹ Wszystkie regaÅ‚y</button></div><div class="shelf-sign">${s.label}</div><div class="shelf-body" id="shelf-rows">`;
+function renderShelfMarkup(key, positions, mini){
+  const s=SHELVES[key];
+  if(!s)return '';
+  const posList=(positions||[]).map(String);
+  let h=`<div class="shelf-sign">${shelfLabel(key,s.label)}</div><div class="shelf-body">`;
   for(let r=0;r<s.rows.length;r++){
     const [from,to]=s.rows[r];
-    h+=`<div class="shelf-rowlabel">RzÄ…d ${r+1} Â· pozycje ${from}â€“${to}</div><div class="shelf-row">`;
+    h+=`<div class="shelf-rowlabel">RzÄ…d ${r+1} - pozycje ${from}-${to}</div><div class="shelf-row">`;
     for(let p=from;p<=to;p++){
       const it=s.items[String(p)];
       const d=it?it.name:'poz.'+p;
-      const on=activeShelfPos.includes(String(p))?' on':'';
-      h+=`<div class="shelf-prod${on}" onclick="clickShelfPos('${p}')" title="Pozycja ${p}"><div class="shelf-card"><div class="shelf-svgwrap">${shelfIcon(d)}</div></div><div class="shelf-ptag"></div><div class="shelf-bn">${p}</div></div>`;
+      const on=posList.includes(String(p))?' on':'';
+      const click=mini?`clickShelfPosForShelf('${key}','${p}')`:`clickShelfPos('${p}')`;
+      h+=`<div class="shelf-prod${on}" onclick="${click}" title="Pozycja ${p}"><div class="shelf-card"><div class="shelf-svgwrap">${shelfIcon(d)}</div></div><div class="shelf-ptag"></div><div class="shelf-bn">${p}</div></div>`;
     }
     h+=`</div><div class="shelf-plank"></div>`;
   }
   h+=`</div><div class="shelf-floor"></div>`;
+  return h;
+}
+
+function renderShelf(){
+  if(!activeShelfKey)return;
+  const h=`<div class="shelf-back"><button onclick="renderShelfPicker()">â€¹ Wszystkie regaÅ‚y</button></div>${renderShelfMarkup(activeShelfKey, activeShelfPos, false)}`;
   document.getElementById('shelf-view').innerHTML=h;
+}
+
+function renderMultiShelfMatches(groups){
+  activeShelfKey=null;
+  activeShelfMatches=groups.slice(0,4);
+  document.getElementById('shelf-picker').style.display='none';
+  const view=document.getElementById('shelf-view');
+  view.style.display='block';
+  const cards=activeShelfMatches.map(g=>`<div class="shelf-mini">${renderShelfMarkup(g.key,g.positions,true)}</div>`).join('');
+  view.innerHTML=`<div class="shelf-back"><button onclick="renderShelfPicker()">â€¹ Wszystkie regaÅ‚y</button></div><div class="shelf-multi-grid">${cards}</div>`;
+}
+
+function clickShelfPosForShelf(key,p){
+  activeShelfKey=key;
+  activeShelfPos=[String(p)];
+  activeShelfMatches=[];
+  renderShelf();
+  clickShelfPos(p);
 }
 
 function clickShelfPos(p, fromVoice){
   activeShelfPos=[String(p)];
-  renderShelf();
+  if(activeShelfKey)renderShelf();
   const s=SHELVES[activeShelfKey];
+  if(!s)return;
   const it=s.items[String(p)];
   const card=document.getElementById('result-card');
   if(it){
+    const itemName=normalizeName(it.name);
     card.className='result-card found';
-    card.innerHTML=`<div class="result-name">${it.name}</div><div class="result-loc-label">${s.label} Â· Pozycja</div><div class="result-loc">${p}</div>`;
-    if(fromVoice)speak(it.name+', pozycja '+p);
+    card.innerHTML=`<div class="result-name">${itemName}</div><div class="result-loc-label">${shelfLabel(activeShelfKey,s.label)} - Pozycja</div><div class="result-loc">${p}</div>`;
+    if(fromVoice)speak(itemName+', pozycja '+p);
   }
   const el=document.querySelector('.shelf-prod.on');
   if(el)el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
 }
 
-// Rozszerzenie wyszukiwania gÅ‚osowego: zawsze szukaj teÅ¼ na regaÅ‚ach (niezaleÅ¼nie od aktywnej zakÅ‚adki),
-// Å¼eby wynik byÅ‚ gotowy gdy uÅ¼ytkownik przeÅ‚Ä…czy siÄ™ na zakÅ‚adkÄ™ RegaÅ‚y
+// Rozszerzenie wyszukiwania gÅ‚osowego: szukaj na wszystkich regaÅ‚ach.
+// JeÅ›li podobny EAN jest na kilku regaÅ‚ach, pokaÅ¼ maksymalnie 4 regaÅ‚y naraz.
 const _origSearchProduct = searchProduct;
 searchProduct = function(digits){
   _origSearchProduct(digits);
-  let foundKey=null, foundPositions=[], foundName=null;
+  const groups=[];
+  let foundName=null;
   for(const key in SHELVES){
     const positions=[];
     for(const pos in SHELVES[key].items){
-      if(SHELVES[key].items[pos].ean.endsWith(digits)){
+      const item=SHELVES[key].items[pos];
+      if(item.ean&&item.ean.endsWith(digits)){
         positions.push(pos);
-        if(!foundName)foundName=SHELVES[key].items[pos].name;
+        if(!foundName)foundName=normalizeName(item.name);
       }
     }
-    if(positions.length>0){foundKey=key;foundPositions=positions;break;}
+    if(positions.length>0)groups.push({key,positions:positions.map(String)});
   }
-  if(foundKey){
-    openShelf(foundKey);
-    activeShelfPos=foundPositions.map(String);
+  if(groups.length===0)return;
+  if(groups.length===1){
+    activeShelfMatches=[];
+    openShelf(groups[0].key);
+    activeShelfPos=groups[0].positions;
     renderShelf();
-    const el=document.querySelector('.shelf-prod.on');
-    if(el)el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
-    // JeÅ›li jesteÅ›my aktualnie na zakÅ‚adce RegaÅ‚y, zaktualizuj teÅ¼ kartÄ™ wyniku i przeczytaj gÅ‚osem
-    if(document.getElementById('tab-shelf').classList.contains('active')){
-      const card=document.getElementById('result-card');
-      if(foundPositions.length===1){
-        card.className='result-card found';
-        card.innerHTML=`<div class="result-name">${foundName}</div><div class="result-loc-label">Pozycja</div><div class="result-loc">${foundPositions[0]}</div>`;
-      } else {
-        card.className='result-card found';
-        card.innerHTML=`<div class="result-name">${foundName}</div><div class="result-loc-label">Pozycje (${foundPositions.length})</div><div class="result-loc" style="font-size:28px">${foundPositions.join(', ')}</div>`;
-      }
+  } else {
+    renderMultiShelfMatches(groups);
+  }
+  const el=document.querySelector('.shelf-prod.on');
+  if(el)el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+  if(document.getElementById('tab-shelf').classList.contains('active')){
+    const card=document.getElementById('result-card');
+    const total=groups.reduce((sum,g)=>sum+g.positions.length,0);
+    if(groups.length===1&&total===1){
+      card.className='result-card found';
+      card.innerHTML=`<div class="result-name">${foundName}</div><div class="result-loc-label">${shelfLabel(groups[0].key,SHELVES[groups[0].key].label)} - Pozycja</div><div class="result-loc">${groups[0].positions[0]}</div>`;
+    } else {
+      card.className='result-card found';
+      card.innerHTML=`<div class="result-name">${foundName||'Towar'}</div><div class="result-loc-label">Trafienia: ${total} - regaÅ‚y: ${groups.length}</div><div class="result-loc" style="font-size:24px">${groups.slice(0,4).map(g=>shelfLabel(g.key,SHELVES[g.key].label)+': '+g.positions.join(', ')).join(' | ')}</div>`;
     }
   }
 };
@@ -1502,7 +1551,7 @@ function replaceDbFromSupabase(items){
 }
 
 async function loadSupabaseData(){
-  setStartupStatus('??cz? z Supabase...', true);
+  setStartupStatus('ÅÄ…czÄ™ z Supabase...', true);
   const stores=await supabaseGet('stores', {select:'id,name', name:'eq.'+SUPABASE_STORE_NAME, active:'eq.true', limit:'1'});
   if(!stores.length)throw new Error('Nie znaleziono sklepu Hornbach w tabeli stores');
   const storeId=stores[0].id;
@@ -1510,17 +1559,17 @@ async function loadSupabaseData(){
   if(!shelves.length)throw new Error('Nie znaleziono rega??w dla Hornbach');
   const shelfIds=shelves.map(s=>s.id).join(',');
   const items=await supabaseGet('shelf_items', {select:'shelf_id,position,ean,product_name,list_name', shelf_id:'in.('+shelfIds+')', order:'position.asc'});
-  if(!items.length)throw new Error('Nie znaleziono pozycji towar?w dla Hornbach');
+  if(!items.length)throw new Error('Nie znaleziono pozycji towarÃ³w dla Hornbach');
   replaceShelvesFromSupabase(shelves, items);
   replaceDbFromSupabase(items);
-  localStorage.setItem('mag_supabase_cache_v3', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
+  localStorage.setItem('mag_supabase_cache_v7', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
   setStartupStatus('Dane z Supabase: '+items.length+' pozycji', true);
-  document.getElementById('db-count').textContent=items.length+' towar?w';
+  document.getElementById('db-count').textContent=items.length+' towarÃ³w';
 }
 
 function loadSupabaseCache(){
   try{
-    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v3')||'null');
+    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v7')||'null');
     if(!cached||!cached.shelves||!cached.db)return false;
     Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
     Object.assign(SHELVES,cached.shelves);
