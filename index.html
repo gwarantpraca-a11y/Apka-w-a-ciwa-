@@ -203,11 +203,9 @@ function searchProduct(digits){
   } else if(matches.length===1){
     const m=matches[0];card.className='result-card found';
     card.innerHTML=`<div class="result-name">${m.name}</div><div class="result-loc-label">Pozycja</div><div class="result-loc">${m.location}</div>`;
-    speak(`${m.name}, pozycja ${m.location}`);
   } else {
     card.className='result-card found';
     card.innerHTML=`<div class="result-name">Znaleziono ${matches.length} (EAN: ...${digits})</div>`+matches.slice(0,5).map(m=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid #BBDEFB"><span style="font-size:13px">${m.name}</span><span style="font-family:monospace;font-weight:700;color:#0C447C">${m.location}</span></div>`).join('');
-    speak('Znaleziono '+matches.length+' towarÃ³w. '+matches.slice(0,3).map(m=>`${m.name}, pozycja ${m.location}`).join('. '));
   }
 }
 let plVoice=null;
@@ -1423,6 +1421,20 @@ function clickShelfPos(p, fromVoice){
 
 // Rozszerzenie wyszukiwania gÅ‚osowego: szukaj na wszystkich regaÅ‚ach.
 // JeÅ›li podobny EAN jest na kilku regaÅ‚ach, pokaÅ¼ maksymalnie 4 regaÅ‚y naraz.
+function speakShelfMatches(groups){
+  const entries=[];
+  for(const g of groups){
+    for(const pos of g.positions){
+      entries.push(`${shelfLabel(g.key,SHELVES[g.key].label)} pozycja ${pos}`);
+    }
+  }
+  if(entries.length===1){
+    speak(entries[0]);
+  } else {
+    speak('Znaleziono '+entries.length+' towary. '+entries.join('. '));
+  }
+}
+
 const _origSearchProduct = searchProduct;
 searchProduct = function(digits){
   _origSearchProduct(digits);
@@ -1450,6 +1462,7 @@ searchProduct = function(digits){
   }
   const el=document.querySelector('.shelf-prod.on');
   if(el)el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+  speakShelfMatches(groups);
   if(document.getElementById('tab-shelf').classList.contains('active')){
     const card=document.getElementById('result-card');
     const total=groups.reduce((sum,g)=>sum+g.positions.length,0);
@@ -1562,14 +1575,14 @@ async function loadSupabaseData(){
   if(!items.length)throw new Error('Nie znaleziono pozycji towarÃ³w dla Hornbach');
   replaceShelvesFromSupabase(shelves, items);
   replaceDbFromSupabase(items);
-  localStorage.setItem('mag_supabase_cache_v11', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
+  localStorage.setItem('mag_supabase_cache_v13', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
   setStartupStatus('Dane z Supabase: '+items.length+' pozycji', true);
   document.getElementById('db-count').textContent=items.length+' towarÃ³w';
 }
 
 function loadSupabaseCache(){
   try{
-    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v11')||'null');
+    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v13')||'null');
     if(!cached||!cached.shelves||!cached.db)return false;
     Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
     Object.assign(SHELVES,cached.shelves);
