@@ -311,7 +311,9 @@ function highlightListMatches(groups,digits){
   for(const g of groups){for(const pos of g.positions){const item=db.find(x=>x.shelf_key===g.key&&String(x.location)===String(pos)&&x.ean&&x.ean.endsWith(digits));if(item){activeListHitIds.push(itemKey(item));parts.push(`${shelfLabel(g.key,SHELVES[g.key].label)} poz. ${pos}`);}}}
   const input=document.getElementById('search-input');if(input)input.value=digits;
   setListHitInfo(parts.length?`Znaleziono na liÅ›cie: ${parts.join(' | ')}`:'');
-  if(document.getElementById('tab-list')?.classList.contains('active')){renderList();setTimeout(()=>document.querySelector('.item-card.hit')?.scrollIntoView({behavior:'smooth',block:'center'}),80);}
+  showTab('list');
+  renderList();
+  setTimeout(()=>document.querySelector('.item-card.hit')?.scrollIntoView({behavior:'smooth',block:'center'}),120);
 }
 async function unlockListEditing(){
   if(listEditing){listEditing=false;document.getElementById('list-edit-status').textContent='Tylko podglÄ…d';document.getElementById('list-edit-toggle').textContent='Odblokuj edycjÄ™';renderList();return;}
@@ -1619,14 +1621,14 @@ async function loadSupabaseData(){
   if(!items.length)throw new Error('Nie znaleziono pozycji towarÃ³w dla Hornbach');
   replaceShelvesFromSupabase(shelves, items);
   replaceDbFromSupabase(items);
-  localStorage.setItem('mag_supabase_cache_v14', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
+  localStorage.setItem('mag_supabase_cache_v15', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
   setStartupStatus('Dane z Supabase: '+items.length+' pozycji', true);
   document.getElementById('db-count').textContent=items.length+' towarÃ³w';
 }
 
 function loadSupabaseCache(){
   try{
-    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v14')||'null');
+    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v15')||'null');
     if(!cached||!cached.shelves||!cached.db)return false;
     Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
     Object.assign(SHELVES,cached.shelves);
