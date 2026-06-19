@@ -36,13 +36,13 @@ td.ean{font-family:monospace}
 const SUPABASE_URL = "https://gpgiuurkwkmtmytorwgd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_r07Fq06vV3h8vkznoPgl7A_QcefBQB5";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function test() {
   const statusEl = document.getElementById('status');
   try {
     // 1) Znajdź regał "philips"
-    const { data: shelf, error: shelfErr } = await supabase
+    const { data: shelf, error: shelfErr } = await db
       .from('shelves')
       .select('id, label, shelf_key')
       .eq('shelf_key', 'philips')
@@ -52,7 +52,7 @@ async function test() {
     if (!shelf) throw new Error('Nie znaleziono regału o shelf_key = "philips"');
 
     // 2) Pobierz pozycje na tym regale
-    const { data: items, error: itemsErr } = await supabase
+    const { data: items, error: itemsErr } = await db
       .from('shelf_items')
       .select('position, ean, product_name, list_name')
       .eq('shelf_id', shelf.id)
