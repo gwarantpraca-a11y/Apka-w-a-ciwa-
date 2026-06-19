@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<meta name="theme-color" content="#0C447C"/>
+<meta name="theme-color" content="#111111"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Magazyn"/>
@@ -64,29 +64,45 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .item-info{flex:1;min-width:0}
 .item-ean{font-size:13px;font-family:monospace;color:#333}
 .item-del{background:none;border:none;padding:8px;color:#CCC;font-size:18px;cursor:pointer;border-radius:8px;flex-shrink:0}
-.item-card.hit{border-color:#FFC107;background:#FFF8D8;box-shadow:0 0 0 2px rgba(255,193,7,.35)}.item-actions{display:flex;gap:4px;flex-shrink:0}.item-edit{background:#E3F2FD;color:#0C447C;border:none;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;cursor:pointer}.list-toolbar{display:flex;align-items:center;gap:8px;margin-top:8px}.list-edit-btn{border:none;border-radius:9px;background:#0C447C;color:#fff;padding:8px 10px;font-size:13px;font-weight:700}.list-edit-status{font-size:12px;color:#666}.list-hit-info{display:none;margin-top:8px;background:#FFF8D8;border:1px solid #FFD54F;border-radius:9px;padding:8px 10px;font-size:13px;color:#795548;font-weight:600}
 .empty-state{text-align:center;padding:40px 20px;color:#AAA;font-size:15px}
 .import-result{display:none;margin-top:12px;background:#E8F5E9;border-radius:10px;padding:12px;font-size:14px;color:#2E7D32;font-weight:600}
 .info-box{background:#E3F2FD;border-radius:14px;padding:16px;margin-bottom:14px;font-size:13px;color:#1565C0;line-height:1.8}
+#start-screen{position:fixed;inset:0;z-index:50;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:22px;overflow:hidden}#start-screen:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,111,0,.18) 0 18px,transparent 18px 36px),linear-gradient(160deg,#151515 0%,#2b1600 55%,#111 100%)}#start-screen:after{content:"";position:absolute;left:-8vw;right:-8vw;bottom:8vh;height:46px;background:#ff6a00;transform:rotate(-5deg);box-shadow:0 18px 0 #ffd400,0 -18px 0 #d71920}.start-card{position:relative;z-index:1;width:min(460px,100%);padding:10px 0 80px}.start-kicker{font-size:12px;font-weight:900;color:#ffd400;letter-spacing:0}.start-card h2{font-size:48px;line-height:.95;margin:10px 0 12px;color:#fff}.start-card p{font-size:16px;line-height:1.35;color:#f3f3f3;margin:0 0 20px}.start-actions{display:flex;gap:10px}.start-actions button{flex:1;border:0;background:#ff6a00;color:#111;font-weight:900;font-size:16px;border-radius:8px;padding:14px 12px}.start-actions button:nth-child(2){background:#ffd400}.start-footer{position:absolute;left:22px;right:22px;bottom:22px;z-index:2;display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#fff}#app.start-hidden{display:none}
+.list-wrap.compact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:6px}.list-wrap.compact .list-group-header{grid-column:1/-1;margin:4px 0 2px;padding:4px;font-size:10px}.list-wrap.compact .item-card{margin:0;padding:7px 8px;gap:7px;border-radius:8px;min-height:44px}.list-wrap.compact .item-loc{min-width:38px;font-size:14px;padding:5px 7px}.list-wrap.compact .item-ean{font-size:11px;word-break:break-all}.list-wrap.compact .item-actions{grid-column:auto}.list-wrap.compact .item-edit,.list-wrap.compact .item-del{padding:6px 7px;font-size:11px}@media(max-width:420px){.list-wrap.compact{grid-template-columns:1fr 1fr}.list-wrap.compact .item-card{padding:6px}.list-wrap.compact .item-ean{font-size:10px}}
+.list-toolbar{display:flex;align-items:center;gap:8px;margin-top:8px}.list-edit-btn{border:0;background:#0C447C;color:#fff;border-radius:8px;padding:8px 10px;font-weight:700}.list-edit-status{font-size:12px;color:#666}.list-hit-info{display:none;margin-top:8px;padding:7px 8px;background:#FFF3D0;border:1px solid #FFC400;border-radius:8px;font-size:12px;color:#3b2b00}.item-card.hit{outline:3px solid #FFC400;background:#FFF8D8}
+</style>
 
-.start-screen{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:space-between;min-height:100dvh;background:#f47b20;color:#111;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.start-screen::before{content:"";position:absolute;inset:-20%;background:repeating-linear-gradient(135deg,rgba(0,0,0,.12) 0 18px,transparent 18px 46px),linear-gradient(160deg,#f47b20 0%,#ffb000 48%,#d71920 100%);z-index:-2}.start-screen::after{content:"";position:absolute;right:-90px;top:120px;width:250px;height:520px;background:rgba(255,255,255,.18);transform:rotate(18deg);z-index:-1}.start-brandbar{display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top,0px) + 22px) 22px 12px}.start-mark{width:50px;height:50px;background:#111;color:#ffcc00;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;border:3px solid #ffcc00;box-shadow:6px 6px 0 rgba(0,0,0,.18)}.start-kicker{font-size:12px;text-transform:uppercase;font-weight:800;letter-spacing:.08em}.start-title{font-size:34px;font-weight:900;line-height:1}.start-stage{margin:12px 18px;background:rgba(255,255,255,.92);border:3px solid #111;box-shadow:10px 10px 0 rgba(0,0,0,.22);padding:20px 18px 18px}.start-ribbon{display:inline-block;background:#111;color:#ffcc00;padding:7px 10px;font-size:12px;font-weight:900;letter-spacing:.06em;margin-bottom:14px}.start-stage h2{font-size:42px;line-height:1;margin:0 0 10px;font-weight:900}.start-stage p{font-size:16px;line-height:1.45;margin:0 0 18px;color:#333}.start-primary{width:100%;border:0;background:#d71920;color:#fff;padding:17px;border-radius:10px;font-size:20px;font-weight:900;box-shadow:0 4px 0 #8b1015}.start-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.start-actions button{border:2px solid #111;background:#ffcc00;color:#111;border-radius:9px;padding:13px;font-size:16px;font-weight:900}.start-footer{display:flex;justify-content:space-between;gap:10px;padding:12px 18px calc(env(safe-area-inset-bottom,0px) + 16px);font-size:12px;font-weight:800;background:rgba(0,0,0,.2);color:#fff}.start-screen.hidden{display:none}
+<style id="hornbach-theme-final">
+:root{--hb-black:#111;--hb-ink:#1b1b1b;--hb-orange:#f37021;--hb-orange-2:#ff8a00;--hb-yellow:#ffd400;--hb-red:#d71920;--hb-paper:#f5f5f2;--hb-line:#d8d4ca;--hb-white:#fff}
+html,body{background:var(--hb-black)}
+#app{background:var(--hb-paper);color:var(--hb-ink)}
+.topbar{background:linear-gradient(135deg,#111 0%,#1d1d1d 62%,#2a1200 100%);border-bottom:5px solid var(--hb-orange);box-shadow:inset 0 -2px 0 var(--hb-yellow)}
+.topbar h1{font-weight:900;letter-spacing:0;color:#fff;text-transform:uppercase}
+.badge{background:var(--hb-yellow);color:#111;border-radius:6px;font-weight:900}
+.status-text{color:#f5f5f2;opacity:1;font-weight:700}.mic-status-dot{background:var(--hb-yellow)}.mic-status-dot.off{background:#777}
+.mic-section{background:#111;padding:12px 16px 16px;border-bottom:4px solid var(--hb-yellow)}
+.mic-btn{border-radius:8px;text-transform:uppercase;font-weight:900;letter-spacing:0;box-shadow:0 4px 0 rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.18)}
+.mic-btn.stopped{background:linear-gradient(90deg,var(--hb-orange),var(--hb-yellow));color:#111}.mic-btn.listening{background:linear-gradient(90deg,var(--hb-red),#8f0f14);color:#fff}.mic-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.heard-row{background:#fff;border-bottom:1px solid var(--hb-line)}.heard-label{color:#555;font-weight:800}.heard-val{color:#111;background:var(--hb-yellow);border-radius:6px;padding:2px 7px;letter-spacing:0}
+.result-wrap{background:#fff}.result-card{border-radius:8px;border-width:2px}.result-card.found{background:#fff8d6;border-color:var(--hb-yellow);box-shadow:inset 6px 0 0 var(--hb-orange)}.result-card.notfound{background:#fff0f0;border-color:var(--hb-red);box-shadow:inset 6px 0 0 var(--hb-red)}
+.result-name{color:#111;font-weight:900}.result-loc-label{color:#111;font-weight:900}.result-loc{color:var(--hb-red)}.notfound-title{color:var(--hb-red);font-weight:900}
+.tabs{background:#111;border-bottom:4px solid var(--hb-orange);gap:1px}.tab{background:#242424;color:#f5f5f2;border-bottom:0;font-weight:900;text-transform:uppercase}.tab.active{background:var(--hb-yellow);color:#111;border-bottom-color:transparent}.tab:active{background:var(--hb-orange);color:#111}
+.panel{background:var(--hb-paper)}.form-wrap{padding:14px;background:var(--hb-paper)}.section-title{color:#111;font-weight:900;background:var(--hb-yellow);display:inline-block;padding:4px 8px;border-left:6px solid var(--hb-orange);border-radius:0;text-transform:uppercase}
+.field label{color:#111;font-weight:900}.field input,.list-search input{border:2px solid var(--hb-line);border-radius:6px;background:#fff;color:#111}.field input:focus,.list-search input:focus{border-color:var(--hb-orange);box-shadow:0 0 0 3px rgba(243,112,33,.18)}
+.save-btn,.import-btn,.list-edit-btn{border-radius:6px;background:linear-gradient(90deg,var(--hb-orange),var(--hb-yellow));color:#111;font-weight:900;text-transform:uppercase;border:0;box-shadow:0 3px 0 rgba(0,0,0,.25)}.import-btn{background:linear-gradient(90deg,#111,var(--hb-orange));color:#fff}.list-edit-btn{padding:9px 12px}.list-edit-status{font-weight:800;color:#333}
+.csv-area,.info-box{background:#fff;border:2px solid var(--hb-line);border-left:7px solid var(--hb-orange);border-radius:6px;color:#222}.csv-area code{background:#111;color:var(--hb-yellow)}.import-result{background:#fff8d6;color:#111;border:2px solid var(--hb-yellow);border-radius:6px}
+.list-search{background:#fff;border-bottom:4px solid var(--hb-yellow)}.list-group-header{color:#111;border-bottom:3px solid var(--hb-orange);font-weight:900;background:#fff;padding:7px 8px;border-radius:4px 4px 0 0}.item-card{border:2px solid #e7e0d7;border-radius:6px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06)}.item-loc{background:#111;color:var(--hb-yellow);border-radius:4px}.item-ean{color:#111;font-weight:800}.item-card.hit{outline:4px solid var(--hb-yellow);background:#fff4b8}.list-hit-info{background:#111;color:#fff;border-color:var(--hb-orange);border-radius:6px;font-weight:800}
+.shelf-pick-card{border:2px solid var(--hb-line);border-radius:6px;background:#fff;box-shadow:inset 7px 0 0 var(--hb-orange)}.shelf-pick-name{color:#111;font-weight:900}.shelf-pick-count{color:#555;font-weight:800}.shelf-back{background:#111;border-bottom:4px solid var(--hb-orange)}.shelf-back button{color:var(--hb-yellow);font-weight:900}.shelf-sign{background:linear-gradient(90deg,#111,var(--hb-orange));color:#fff;border-radius:0;margin:8px 8px 0;text-transform:uppercase}.shelf-body{border-color:#5f4b32;background:#b98d53}.shelf-plank{background:#6f431d}.shelf-row{background:#c99a56}.shelf-floor{background:#777;border-top-color:#555}.shelf-prod.on .shelf-card{outline-color:var(--hb-yellow)}.shelf-ptag{background:linear-gradient(90deg,var(--hb-red),var(--hb-orange),var(--hb-yellow))}
+#start-screen{background:#111;align-items:stretch;padding:22px}#start-screen:before{background:repeating-linear-gradient(135deg,rgba(255,212,0,.16) 0 16px,transparent 16px 32px),radial-gradient(circle at 20% 20%,rgba(243,112,33,.34),transparent 34%),linear-gradient(145deg,#111 0%,#1b1b1b 52%,#2a1200 100%)}#start-screen:after{height:54px;background:var(--hb-orange);box-shadow:0 20px 0 var(--hb-yellow),0 -20px 0 var(--hb-red);bottom:7vh}.start-card{width:min(560px,100%);margin:auto;z-index:2;padding:0 0 96px}.start-kicker{display:inline-block;background:var(--hb-yellow);color:#111;padding:5px 8px;font-weight:1000}.start-card h2{font-size:52px;text-transform:uppercase;font-weight:1000;color:#fff;text-shadow:0 3px 0 #000}.start-card p{font-weight:800;color:#fff}.start-actions{display:flex;flex-direction:column;gap:12px;margin-top:22px}.start-actions button{position:relative;overflow:hidden;min-height:92px;padding:16px 18px 16px 92px;border-radius:0;border:3px solid #111;text-align:left;font-size:28px;line-height:1;font-weight:1000;text-transform:uppercase;color:#111;box-shadow:8px 8px 0 rgba(0,0,0,.45)}.start-actions button:before{content:"";position:absolute;left:0;top:0;bottom:0;width:72px;background:repeating-linear-gradient(135deg,#111 0 10px,var(--hb-yellow) 10px 20px)}.start-actions button:after{display:block;margin-top:8px;font-size:12px;font-weight:1000;letter-spacing:.04em;color:#111}.start-actions button:first-child{background:linear-gradient(90deg,var(--hb-orange),var(--hb-yellow))}.start-actions button:first-child:after{content:"SPRAWDÅ¹ POÅOÅ»ENIE NA REGALE"}.start-actions button:nth-child(2){background:linear-gradient(90deg,var(--hb-yellow),#fff 72%)}.start-actions button:nth-child(2):after{content:"OTWÃ“RZ LISTÄ˜ I POZYCJE"}.start-footer{font-weight:900;color:#fff;text-shadow:0 2px 0 #000}
+@media(max-width:420px){.start-card h2{font-size:42px}.start-actions button{font-size:24px;min-height:86px;padding-left:84px}.topbar h1{font-size:18px}.tab{font-size:11px}}
 </style>
 </head>
 <body>
-<div id="start-screen" class="start-screen">
-  <div class="start-brandbar">
-    <div class="start-mark">H</div>
-    <div>
-      <div class="start-kicker">Asystent magazynowy</div>
-      <div class="start-title">Hornbach</div>
-    </div>
-  </div>
-  <div class="start-stage">
-    <div class="start-ribbon">REGAÅY Â· LISTY Â· EAN</div>
-    <h2>Start pracy</h2>
-    <p>Wyszukaj towar gÅ‚osem, sprawdÅº pozycjÄ™ i przejdÅº prosto do regaÅ‚u albo listy.</p>
-    <button class="start-primary" onclick="enterApp('add')">Start</button>
+<div id="start-screen">
+  <div class="start-card">
+    <div class="start-kicker">HORNBACH MAGAZYN</div>
+    <h2>ZnajdÅ¼ towar</h2>
+    <p>Szybkie sprawdzanie regaÅ‚Ã³w, list i pozycji z bazy Supabase.</p>
     <div class="start-actions">
       <button onclick="enterApp('shelf')">RegaÅ‚y</button>
       <button onclick="enterApp('list')">Lista</button>
@@ -94,21 +110,21 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
   </div>
   <div class="start-footer">
     <span id="start-data-status">Åadowanie danych...</span>
-    <span>Tablet Â· Chrome</span>
+    <span>Tablet - Chrome</span>
   </div>
 </div>
-<div id="app">
+<div id="app" class="start-hidden">
   <div class="topbar">
     <h1>Magazyn Hornbach</h1>
     <div class="topbar-row">
-      <div class="status-text"><span class="mic-status-dot" id="mic-dot"></span><span id="status-label">NasÅ‚uchiwanie aktywne</span></div>
+      <div class="status-text"><span class="mic-status-dot off" id="mic-dot"></span><span id="status-label">NasÅ‚uchiwanie zatrzymane</span></div>
       <span class="badge" id="db-count">0 towarÃ³w</span>
     </div>
   </div>
   <div class="mic-section">
-    <button class="mic-btn listening" id="mic-btn" onclick="toggleListening()">
+    <button class="mic-btn stopped" id="mic-btn" onclick="toggleListening()">
       <svg style="width:24px;height:24px;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-1 17.93V21h-2v2h6v-2h-2v-2.07A8 8 0 0 0 20 11h-2a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.93z"/></svg>
-      <span id="mic-btn-label">ZATRZYMAJ NASÅUCHIWANIE</span>
+      <span id="mic-btn-label">WÅÄ„CZ NASÅUCHIWANIE</span>
     </button>
   </div>
   <div class="heard-row"><span class="heard-label">Ostatnio sÅ‚yszÄ™:</span><span class="heard-val" id="heard-val">â€”</span></div>
@@ -150,7 +166,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
   </div>
   <div id="panel-list" class="panel">
     <div class="list-search">
-      <input id="search-input" type="text" placeholder="Szukaj po EAN lub liÅ›cie..." oninput="renderList()"/>
+      <input id="search-input" type="text" placeholder="Szukaj po EAN lub liÅ›cie..." oninput="clearListHits();renderList()"/>
       <div class="list-toolbar">
         <button class="list-edit-btn" id="list-edit-toggle" onclick="unlockListEditing()">Odblokuj edycjÄ™</button>
         <span class="list-edit-status" id="list-edit-status">Tylko podglÄ…d</span>
@@ -189,20 +205,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 @media(max-width:520px){.shelf-multi-grid{gap:4px;padding:4px}.shelf-mini .shelf-sign{font-size:9px;padding:4px 1px}.shelf-mini .shelf-row{min-height:10px}.shelf-mini .shelf-svgwrap{height:8px}.shelf-mini .shelf-bn{font-size:5px}}
 </style>
 <script>
-
-function enterApp(tab){
-  const screen=document.getElementById('start-screen');
-  if(screen)screen.classList.add('hidden');
-  if(tab)showTab(tab);
-}
-function updateStartStatus(){
-  const el=document.getElementById('start-data-status');
-  if(el)el.textContent=(db&&db.length)?('Dane gotowe: '+db.length+' pozycji'):'Åadowanie danych...';
-}
 let db=[], listEditing=false, activeListHitIds=[];
 function loadDB(){try{db=JSON.parse(localStorage.getItem('mag_v2')||'[]');}catch(e){db=[];}updateCount();}
 function saveDB(){localStorage.setItem('mag_v2',JSON.stringify(db));updateCount();}
-function updateCount(){document.getElementById('db-count').textContent=db.length+' towarÃ³w';}
+function updateCount(){document.getElementById('db-count').textContent=db.length+' towarÃ³w';updateStartStatus();}
 function showTab(n){['add','scan-list','list','shelf'].forEach(t=>{document.getElementById('panel-'+t).classList.toggle('active',t===n);document.getElementById('tab-'+t).classList.toggle('active',t===n);});if(n==='list')renderList();if(n==='shelf'){if(activeShelfMatches.length||activeShelfKey){document.getElementById('shelf-picker').style.display='none';document.getElementById('shelf-view').style.display='block';}else{renderShelfPicker();}}}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let recognition=null,listening=false,restartTimer=null;
@@ -331,48 +337,18 @@ function importCSVList(event){
     saveDB();const res=document.getElementById('import-result');res.style.display='block';res.textContent=`Zaimportowano ${imported} pozycji`;speak('Zaimportowano '+imported+' pozycji');setTimeout(()=>showTab('list'),1500);
   };reader.readAsText(file,'UTF-8');
 }
-function itemKey(item){return item.id||`${item.ean}|${item.location}|${item.name}`;}
 function renderList(){
-  const q=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
+  const q=(document.getElementById('search-input').value||'').toLowerCase().trim();
   const wrap=document.getElementById('list-wrap');
+  wrap.classList.toggle('compact', activeListHitIds.length>0);
   if(db.length===0){wrap.innerHTML='<div class="empty-state">Brak towarÃ³w w bazie</div>';return;}
   const filtered=db.filter(i=>!q||i.name.toLowerCase().includes(q)||i.ean.includes(q)||String(i.location).includes(q));
   if(filtered.length===0){wrap.innerHTML='<div class="empty-state">Brak wynikÃ³w</div>';return;}
   const groups={};filtered.forEach(r=>{if(!groups[r.name])groups[r.name]=[];groups[r.name].push(r);});
-  wrap.innerHTML=Object.entries(groups).map(([ln,rows])=>`<div class="list-group-header">${ln} (${rows.length})</div>${rows.map(item=>{const idx=db.indexOf(item);const hit=activeListHitIds.includes(itemKey(item))?' hit':'';return`<div class="item-card${hit}" id="list-item-${idx}"><div class="item-loc">${item.location||'?'}</div><div class="item-info"><div class="item-ean">${item.ean}</div></div>${listEditing?`<div class="item-actions"><button class="item-edit" onclick="editListItem(${idx})">Edytuj</button><button class="item-del" onclick="deleteItem(${idx})">?</button></div>`:''}</div>`;}).join('')}`).join('');
+  wrap.innerHTML=Object.entries(groups).map(([ln,rows])=>'<div class="list-group-header">'+ln+' ('+rows.length+')</div>'+rows.map(item=>{const idx=db.indexOf(item);const hit=activeListHitIds.includes(itemKey(item))?' hit':'';return '<div class="item-card'+hit+'" id="list-item-'+idx+'"><div class="item-loc">'+(item.location||'')+'</div><div class="item-info"><div class="item-ean">'+item.ean+'</div></div>'+(listEditing?'<div class="item-actions"><button class="item-edit" onclick="editListItem('+idx+')">Edytuj</button><button class="item-del" onclick="deleteItem('+idx+')">UsuÅ„</button></div>':'')+'</div>';}).join('')).join('');
 }
-function setListHitInfo(text){const box=document.getElementById('list-hit-info');if(!box)return;if(!text){box.style.display='none';box.textContent='';return;}box.style.display='block';box.textContent=text;}
-function scrollToListHit(){
-  const el=document.querySelector('.item-card.hit');
-  if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
-}
-function highlightListMatches(groups,digits){
-  activeListHitIds=[];
-  const hits=db.filter(x=>x.ean&&x.ean.endsWith(digits));
-  activeListHitIds=hits.map(itemKey);
-  const parts=hits.slice(0,8).map(x=>`${x.name} poz. ${x.location}`);
-  const input=document.getElementById('search-input');if(input)input.value=digits;
-  setListHitInfo(parts.length?`Znaleziono na liÅ›cie: ${parts.join(' | ')}`:'');
-  showTab('list');
-  renderList();
-  setTimeout(scrollToListHit,80);
-  setTimeout(scrollToListHit,250);
-  setTimeout(scrollToListHit,600);
-}
-async function unlockListEditing(){
-  if(listEditing){listEditing=false;document.getElementById('list-edit-status').textContent='Tylko podglÄ…d';document.getElementById('list-edit-toggle').textContent='Odblokuj edycjÄ™';renderList();return;}
-  const pin=prompt('Podaj PIN do edycji listy');if(!pin)return;
-  try{const users=await supabaseGet('employees',{select:'full_name,role,active',pin_code:'eq.'+pin,active:'eq.true',limit:'1'});const u=users[0];if(!u||!['manager','admin'].includes(String(u.role||'').toLowerCase())){alert('Brak dostÄ™pu do edycji listy');return;}listEditing=true;document.getElementById('list-edit-status').textContent='Edycja: '+u.full_name;document.getElementById('list-edit-toggle').textContent='Zablokuj edycjÄ™';renderList();}catch(e){console.error(e);alert('Nie udaÅ‚o siÄ™ sprawdziÄ‡ PIN-u');}
-}
-async function editListItem(idx){
-  if(!listEditing)return alert('Najpierw odblokuj edycjÄ™');const item=db[idx];if(!item)return;
-  const ean=prompt('EAN',item.ean);if(!ean)return;const name=prompt('Nazwa listy',item.name);if(!name)return;const position=prompt('Pozycja',item.location);if(!position)return;
-  try{if(item.id){await supabaseRequest('PATCH','shelf_items',{id:'eq.'+item.id},{ean:String(ean).trim(),product_name:String(name).trim(),list_name:String(name).trim(),position:Number(position)});await loadSupabaseData();}else{item.ean=String(ean).trim();item.name=String(name).trim();item.location=String(position).trim();saveDB();}renderList();}catch(e){console.error(e);alert('Nie udaÅ‚o siÄ™ zapisaÄ‡ zmian');}
-}
-async function deleteItem(idx){
-  if(!listEditing)return alert('Najpierw odblokuj edycjÄ™');const item=db[idx];if(!item)return;if(!confirm('UsunÄ…Ä‡ EAN: '+item.ean+'?'))return;
-  try{if(item.id){await supabaseRequest('DELETE','shelf_items',{id:'eq.'+item.id});await loadSupabaseData();}else{db.splice(idx,1);saveDB();}renderList();}catch(e){console.error(e);alert('Nie udaÅ‚o siÄ™ usunÄ…Ä‡ pozycji');}
-}
+function editListItem(idx){const item=db[idx];if(!item)return;const loc=prompt('Nowa pozycja',item.location);if(loc===null)return;item.location=String(loc).trim();saveDB();renderList();}
+function deleteItem(idx){if(!confirm('UsunÄ…Ä‡ EAN: '+db[idx]?.ean+'?'))return;db.splice(idx,1);saveDB();renderList();}
 const SHELVES = {
   "philips": {
     label: "PHILIPS LED-LEUCHTMITTEL",
@@ -1414,6 +1390,17 @@ function shelfIcon(d){
   return '<svg width="100%" height="100%" viewBox="0 0 44 72" preserveAspectRatio="xMidYMid meet"><rect x="17" y="63" width="10" height="9" rx="1" fill="#c0c0c0"/><ellipse cx="22" cy="33" rx="16" ry="22" fill="#fff6e0" stroke="#f0d070"/></svg>';
 }
 
+function updateStartStatus(){
+  const el=document.getElementById('start-data-status');
+  if(el)el.textContent=(db&&db.length)?('Dane gotowe: '+db.length+' pozycji'):'Åadowanie danych...';
+}
+function enterApp(tab){const start=document.getElementById('start-screen');if(start)start.style.display='none';const app=document.getElementById('app');if(app)app.classList.remove('start-hidden');showTab(tab||'shelf');}
+function itemKey(item){return item.id||(item.ean+'|'+item.location+'|'+item.name);}
+function clearListHits(){activeListHitIds=[];setListHitInfo('');const wrap=document.getElementById('list-wrap');if(wrap)wrap.classList.remove('compact');}
+function setListHitInfo(text){const box=document.getElementById('list-hit-info');if(!box)return;if(!text){box.style.display='none';box.textContent='';return;}box.style.display='block';box.textContent=text;}
+function scrollToListHit(){const el=document.querySelector('.item-card.hit');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}
+function highlightListMatches(groups,digits){activeListHitIds=[];const hits=db.filter(x=>x.ean&&x.ean.endsWith(digits));activeListHitIds=hits.map(itemKey);const parts=hits.slice(0,8).map(x=>x.name+' poz. '+x.location);const input=document.getElementById('search-input');if(input)input.value=digits;setListHitInfo(parts.length?'Znaleziono na liÅ›cie: '+parts.join(' | '):'');showTab('list');renderList();setTimeout(scrollToListHit,80);setTimeout(scrollToListHit,250);setTimeout(scrollToListHit,600);}
+async function unlockListEditing(){if(listEditing){listEditing=false;document.getElementById('list-edit-status').textContent='Tylko podglÄ…d';document.getElementById('list-edit-toggle').textContent='Odblokuj edycjÄ™';renderList();return;}const pin=prompt('Podaj PIN do edycji listy');if(!pin)return;try{const users=await supabaseGet('employees',{select:'full_name,role,active',pin_code:'eq.'+pin,active:'eq.true',limit:'1'});const u=users[0];if(!u||!['manager','admin'].includes(String(u.role||'').toLowerCase())){alert('Brak dostÄ™pu do edycji listy');return;}listEditing=true;document.getElementById('list-edit-status').textContent='Edycja: '+u.full_name;document.getElementById('list-edit-toggle').textContent='Zablokuj edycjÄ™';renderList();}catch(e){console.error(e);alert('Nie udaÅ‚o siÄ™ sprawdziÄ‡ PIN-u');}}
 function renderShelfPicker(){
   document.getElementById('shelf-picker').style.display='block';
   document.getElementById('shelf-view').style.display='none';
@@ -1527,6 +1514,7 @@ searchProduct = function(digits){
     }
     if(positions.length>0)groups.push({key,positions:positions.map(String)});
   }
+  highlightListMatches(groups,digits);
   if(groups.length===0)return;
   if(groups.length===1){
     activeShelfMatches=[];
@@ -1538,7 +1526,6 @@ searchProduct = function(digits){
   }
   const el=document.querySelector('.shelf-prod.on');
   if(el)el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
-  highlightListMatches(groups,digits);
   speakShelfMatches(groups);
   if(document.getElementById('tab-shelf').classList.contains('active')){
     const card=document.getElementById('result-card');
@@ -1603,19 +1590,10 @@ async function supabaseGet(path, params){
   return res.json();
 }
 
-async function supabaseRequest(method,path,params,body){
-  const url=new URL(SUPABASE_URL+'/rest/v1/'+path);
-  Object.entries(params||{}).forEach(([k,v])=>url.searchParams.set(k,v));
-  const res=await fetch(url.toString(),{method,headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,Accept:'application/json','Content-Type':'application/json',Prefer:'return=representation'},body:body===undefined?undefined:JSON.stringify(body)});
-  if(!res.ok){const msg=await res.text().catch(()=>'');throw new Error('Supabase '+res.status+': '+msg);}
-  const txt=await res.text();return txt?JSON.parse(txt):null;
-}
-
 function replaceShelvesFromSupabase(shelves, items){
   const next={};
   for(const shelf of shelves){
     next[shelf.shelf_key]={
-      id:shelf.id,
       label:shelf.label,
       rows:shelf.rows_config,
       items:{}
@@ -1635,21 +1613,8 @@ function replaceShelvesFromSupabase(shelves, items){
 }
 
 function replaceDbFromSupabase(items){
-  const shelfById={};Object.entries(SHELVES).forEach(([key,s])=>{shelfById[s.id]=key;});
-  db=items
-    .slice()
-    .sort((a,b)=>String(a.list_name||a.product_name||'').localeCompare(String(b.list_name||b.product_name||''),'pl') || Number(a.position)-Number(b.position))
-    .map(item=>({
-      id:item.id,
-      shelf_id:item.shelf_id,
-      shelf_key:shelfById[item.shelf_id]||'',
-      ean:String(item.ean),
-      name:normalizeName(item.product_name||item.list_name||''),
-      location:String(item.position),
-      quantity:0,
-      price:0
-    }));
-  updateCount();
+  db=items.slice().sort((a,b)=>String(a.list_name||a.product_name||'').localeCompare(String(b.list_name||b.product_name||''),'pl') || Number(a.position)-Number(b.position)).map(item=>({id:item.id,shelf_id:item.shelf_id,ean:String(item.ean),name:normalizeName(item.product_name||item.list_name||''),location:String(item.position),quantity:0,price:0}));
+  updateCount();updateStartStatus();
   if(document.getElementById('tab-list')?.classList.contains('active'))renderList();
 }
 
@@ -1659,25 +1624,25 @@ async function loadSupabaseData(){
   if(!stores.length)throw new Error('Nie znaleziono sklepu Hornbach w tabeli stores');
   const storeId=stores[0].id;
   const shelves=await supabaseGet('shelves', {select:'id,label,shelf_key,rows_config', store_id:'eq.'+storeId});
-  if(!shelves.length)throw new Error('Nie znaleziono regaÅ‚Ã³w dla Hornbach');
+  if(!shelves.length)throw new Error('Nie znaleziono rega??w dla Hornbach');
   const shelfIds=shelves.map(s=>s.id).join(',');
   const items=await supabaseGet('shelf_items', {select:'id,shelf_id,position,ean,product_name,list_name', shelf_id:'in.('+shelfIds+')', order:'position.asc'});
   if(!items.length)throw new Error('Nie znaleziono pozycji towarÃ³w dla Hornbach');
   replaceShelvesFromSupabase(shelves, items);
   replaceDbFromSupabase(items);
-  localStorage.setItem('mag_supabase_cache_v16', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
+  localStorage.setItem('mag_supabase_cache_v13', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
   setStartupStatus('Dane z Supabase: '+items.length+' pozycji', true);
   document.getElementById('db-count').textContent=items.length+' towarÃ³w';
 }
 
 function loadSupabaseCache(){
   try{
-    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v16')||'null');
+    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v13')||'null');
     if(!cached||!cached.shelves||!cached.db)return false;
     Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
     Object.assign(SHELVES,cached.shelves);
     db=cached.db;
-    updateCount();updateStartStatus();
+    updateCount();
     setStartupStatus('Dane offline z ostatniego pobrania', true);
     return true;
   }catch(e){return false;}
@@ -1692,7 +1657,7 @@ async function initApp(){
     console.error(e);
     if(!loadSupabaseCache())setStartupStatus('Tryb lokalny - brak po\u0142\u0105czenia z baz\u0105', false);
   }
-  setTimeout(()=>{startListening();},800);
+  updateMicUI(false);updateStartStatus();
 }
 
 initApp();
