@@ -64,6 +64,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .item-info{flex:1;min-width:0}
 .item-ean{font-size:13px;font-family:monospace;color:#333}
 .item-del{background:none;border:none;padding:8px;color:#CCC;font-size:18px;cursor:pointer;border-radius:8px;flex-shrink:0}
+.item-card.hit{border-color:#FFC107;background:#FFF8D8;box-shadow:0 0 0 2px rgba(255,193,7,.35)}.item-actions{display:flex;gap:4px;flex-shrink:0}.item-edit{background:#E3F2FD;color:#0C447C;border:none;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;cursor:pointer}.list-toolbar{display:flex;align-items:center;gap:8px;margin-top:8px}.list-edit-btn{border:none;border-radius:9px;background:#0C447C;color:#fff;padding:8px 10px;font-size:13px;font-weight:700}.list-edit-status{font-size:12px;color:#666}.list-hit-info{display:none;margin-top:8px;background:#FFF8D8;border:1px solid #FFD54F;border-radius:9px;padding:8px 10px;font-size:13px;color:#795548;font-weight:600}
 .empty-state{text-align:center;padding:40px 20px;color:#AAA;font-size:15px}
 .import-result{display:none;margin-top:12px;background:#E8F5E9;border-radius:10px;padding:12px;font-size:14px;color:#2E7D32;font-weight:600}
 .info-box{background:#E3F2FD;border-radius:14px;padding:16px;margin-bottom:14px;font-size:13px;color:#1565C0;line-height:1.8}
@@ -122,7 +123,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
     </div>
   </div>
   <div id="panel-list" class="panel">
-    <div class="list-search"><input id="search-input" type="text" placeholder="Szukaj po EAN lub liÅ›cie..." oninput="renderList()"/></div>
+    <div class="list-search">
+      <input id="search-input" type="text" placeholder="Szukaj po EAN lub liÅ›cie..." oninput="renderList()"/>
+      <div class="list-toolbar">
+        <button class="list-edit-btn" id="list-edit-toggle" onclick="unlockListEditing()">Odblokuj edycjÄ™</button>
+        <span class="list-edit-status" id="list-edit-status">Tylko podglÄ…d</span>
+      </div>
+      <div class="list-hit-info" id="list-hit-info"></div>
+    </div>
     <div class="list-wrap" id="list-wrap"></div>
   </div>
   <div id="panel-shelf" class="panel">
@@ -155,7 +163,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 @media(max-width:520px){.shelf-multi-grid{gap:4px;padding:4px}.shelf-mini .shelf-sign{font-size:9px;padding:4px 1px}.shelf-mini .shelf-row{min-height:10px}.shelf-mini .shelf-svgwrap{height:8px}.shelf-mini .shelf-bn{font-size:5px}}
 </style>
 <script>
-let db=[];
+let db=[], listEditing=false, activeListHitIds=[];
 function loadDB(){try{db=JSON.parse(localStorage.getItem('mag_v2')||'[]');}catch(e){db=[];}updateCount();}
 function saveDB(){localStorage.setItem('mag_v2',JSON.stringify(db));updateCount();}
 function updateCount(){document.getElementById('db-count').textContent=db.length+' towarÃ³w';}
@@ -287,16 +295,38 @@ function importCSVList(event){
     saveDB();const res=document.getElementById('import-result');res.style.display='block';res.textContent=`Zaimportowano ${imported} pozycji`;speak('Zaimportowano '+imported+' pozycji');setTimeout(()=>showTab('list'),1500);
   };reader.readAsText(file,'UTF-8');
 }
+function itemKey(item){return item.id||`${item.ean}|${item.location}|${item.name}`;}
 function renderList(){
   const q=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
   const wrap=document.getElementById('list-wrap');
   if(db.length===0){wrap.innerHTML='<div class="empty-state">Brak towarÃ³w w bazie</div>';return;}
-  const filtered=db.filter(i=>!q||i.name.toLowerCase().includes(q)||i.ean.includes(q)||i.location.includes(q));
+  const filtered=db.filter(i=>!q||i.name.toLowerCase().includes(q)||i.ean.includes(q)||String(i.location).includes(q));
   if(filtered.length===0){wrap.innerHTML='<div class="empty-state">Brak wynikÃ³w</div>';return;}
   const groups={};filtered.forEach(r=>{if(!groups[r.name])groups[r.name]=[];groups[r.name].push(r);});
-  wrap.innerHTML=Object.entries(groups).map(([ln,rows])=>`<div class="list-group-header">${ln} (${rows.length})</div>${rows.map(item=>{const idx=db.indexOf(item);return`<div class="item-card"><div class="item-loc">${item.location||'?'}</div><div class="item-info"><div class="item-ean">${item.ean}</div></div><button class="item-del" onclick="deleteItem(${idx})">âœ•</button></div>`;}).join('')}`).join('');
+  wrap.innerHTML=Object.entries(groups).map(([ln,rows])=>`<div class="list-group-header">${ln} (${rows.length})</div>${rows.map(item=>{const idx=db.indexOf(item);const hit=activeListHitIds.includes(itemKey(item))?' hit':'';return`<div class="item-card${hit}" id="list-item-${idx}"><div class="item-loc">${item.location||'?'}</div><div class="item-info"><div class="item-ean">${item.ean}</div></div>${listEditing?`<div class="item-actions"><button class="item-edit" onclick="editListItem(${idx})">Edytuj</button><button class="item-del" onclick="deleteItem(${idx})">?</button></div>`:''}</div>`;}).join('')}`).join('');
 }
-function deleteItem(idx){if(!confirm('UsunÄ…Ä‡ EAN: '+db[idx]?.ean+'?'))return;db.splice(idx,1);saveDB();renderList();}
+function setListHitInfo(text){const box=document.getElementById('list-hit-info');if(!box)return;if(!text){box.style.display='none';box.textContent='';return;}box.style.display='block';box.textContent=text;}
+function highlightListMatches(groups,digits){
+  activeListHitIds=[];const parts=[];
+  for(const g of groups){for(const pos of g.positions){const item=db.find(x=>x.shelf_key===g.key&&String(x.location)===String(pos)&&x.ean&&x.ean.endsWith(digits));if(item){activeListHitIds.push(itemKey(item));parts.push(`${shelfLabel(g.key,SHELVES[g.key].label)} poz. ${pos}`);}}}
+  const input=document.getElementById('search-input');if(input)input.value=digits;
+  setListHitInfo(parts.length?`Znaleziono na liÅ›cie: ${parts.join(' | ')}`:'');
+  if(document.getElementById('tab-list')?.classList.contains('active')){renderList();setTimeout(()=>document.querySelector('.item-card.hit')?.scrollIntoView({behavior:'smooth',block:'center'}),80);}
+}
+async function unlockListEditing(){
+  if(listEditing){listEditing=false;document.getElementById('list-edit-status').textContent='Tylko podglÄ…d';document.getElementById('list-edit-toggle').textContent='Odblokuj edycjÄ™';renderList();return;}
+  const pin=prompt('Podaj PIN do edycji listy');if(!pin)return;
+  try{const users=await supabaseGet('employees',{select:'full_name,role,active',pin_code:'eq.'+pin,active:'eq.true',limit:'1'});const u=users[0];if(!u||!['manager','admin'].includes(String(u.role||'').toLowerCase())){alert('Brak dost?pu do edycji listy');return;}listEditing=true;document.getElementById('list-edit-status').textContent='Edycja: '+u.full_name;document.getElementById('list-edit-toggle').textContent='Zablokuj edycjÄ™';renderList();}catch(e){console.error(e);alert('Nie uda?o si? sprawdzi? PIN-u');}
+}
+async function editListItem(idx){
+  if(!listEditing)return alert('Najpierw odblokuj edycjÄ™');const item=db[idx];if(!item)return;
+  const ean=prompt('EAN',item.ean);if(!ean)return;const name=prompt('Nazwa listy',item.name);if(!name)return;const position=prompt('Pozycja',item.location);if(!position)return;
+  try{if(item.id){await supabaseRequest('PATCH','shelf_items',{id:'eq.'+item.id},{ean:String(ean).trim(),product_name:String(name).trim(),list_name:String(name).trim(),position:Number(position)});await loadSupabaseData();}else{item.ean=String(ean).trim();item.name=String(name).trim();item.location=String(position).trim();saveDB();}renderList();}catch(e){console.error(e);alert('Nie udaÅ‚o siÄ™ zapisaÄ‡ zmian');}
+}
+async function deleteItem(idx){
+  if(!listEditing)return alert('Najpierw odblokuj edycjÄ™');const item=db[idx];if(!item)return;if(!confirm('Usun?? EAN: '+item.ean+'?'))return;
+  try{if(item.id){await supabaseRequest('DELETE','shelf_items',{id:'eq.'+item.id});await loadSupabaseData();}else{db.splice(idx,1);saveDB();}renderList();}catch(e){console.error(e);alert('Nie udaÅ‚o siÄ™ usunÄ…Ä‡ pozycji');}
+}
 const SHELVES = {
   "philips": {
     label: "PHILIPS LED-LEUCHTMITTEL",
@@ -1462,6 +1492,7 @@ searchProduct = function(digits){
   }
   const el=document.querySelector('.shelf-prod.on');
   if(el)el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+  highlightListMatches(groups,digits);
   speakShelfMatches(groups);
   if(document.getElementById('tab-shelf').classList.contains('active')){
     const card=document.getElementById('result-card');
@@ -1526,10 +1557,19 @@ async function supabaseGet(path, params){
   return res.json();
 }
 
+async function supabaseRequest(method,path,params,body){
+  const url=new URL(SUPABASE_URL+'/rest/v1/'+path);
+  Object.entries(params||{}).forEach(([k,v])=>url.searchParams.set(k,v));
+  const res=await fetch(url.toString(),{method,headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,Accept:'application/json','Content-Type':'application/json',Prefer:'return=representation'},body:body===undefined?undefined:JSON.stringify(body)});
+  if(!res.ok){const msg=await res.text().catch(()=>'');throw new Error('Supabase '+res.status+': '+msg);}
+  const txt=await res.text();return txt?JSON.parse(txt):null;
+}
+
 function replaceShelvesFromSupabase(shelves, items){
   const next={};
   for(const shelf of shelves){
     next[shelf.shelf_key]={
+      id:shelf.id,
       label:shelf.label,
       rows:shelf.rows_config,
       items:{}
@@ -1549,10 +1589,14 @@ function replaceShelvesFromSupabase(shelves, items){
 }
 
 function replaceDbFromSupabase(items){
+  const shelfById={};Object.entries(SHELVES).forEach(([key,s])=>{shelfById[s.id]=key;});
   db=items
     .slice()
     .sort((a,b)=>String(a.list_name||a.product_name||'').localeCompare(String(b.list_name||b.product_name||''),'pl') || Number(a.position)-Number(b.position))
     .map(item=>({
+      id:item.id,
+      shelf_id:item.shelf_id,
+      shelf_key:shelfById[item.shelf_id]||'',
       ean:String(item.ean),
       name:normalizeName(item.product_name||item.list_name||''),
       location:String(item.position),
@@ -1571,18 +1615,18 @@ async function loadSupabaseData(){
   const shelves=await supabaseGet('shelves', {select:'id,label,shelf_key,rows_config', store_id:'eq.'+storeId});
   if(!shelves.length)throw new Error('Nie znaleziono rega??w dla Hornbach');
   const shelfIds=shelves.map(s=>s.id).join(',');
-  const items=await supabaseGet('shelf_items', {select:'shelf_id,position,ean,product_name,list_name', shelf_id:'in.('+shelfIds+')', order:'position.asc'});
+  const items=await supabaseGet('shelf_items', {select:'id,shelf_id,position,ean,product_name,list_name', shelf_id:'in.('+shelfIds+')', order:'position.asc'});
   if(!items.length)throw new Error('Nie znaleziono pozycji towarÃ³w dla Hornbach');
   replaceShelvesFromSupabase(shelves, items);
   replaceDbFromSupabase(items);
-  localStorage.setItem('mag_supabase_cache_v13', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
+  localStorage.setItem('mag_supabase_cache_v14', JSON.stringify({shelves:SHELVES, db, savedAt:Date.now()}));
   setStartupStatus('Dane z Supabase: '+items.length+' pozycji', true);
   document.getElementById('db-count').textContent=items.length+' towarÃ³w';
 }
 
 function loadSupabaseCache(){
   try{
-    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v13')||'null');
+    const cached=JSON.parse(localStorage.getItem('mag_supabase_cache_v14')||'null');
     if(!cached||!cached.shelves||!cached.db)return false;
     Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
     Object.assign(SHELVES,cached.shelves);
