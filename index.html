@@ -68,9 +68,35 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .empty-state{text-align:center;padding:40px 20px;color:#AAA;font-size:15px}
 .import-result{display:none;margin-top:12px;background:#E8F5E9;border-radius:10px;padding:12px;font-size:14px;color:#2E7D32;font-weight:600}
 .info-box{background:#E3F2FD;border-radius:14px;padding:16px;margin-bottom:14px;font-size:13px;color:#1565C0;line-height:1.8}
+
+.start-screen{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:space-between;min-height:100dvh;background:#f47b20;color:#111;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.start-screen::before{content:"";position:absolute;inset:-20%;background:repeating-linear-gradient(135deg,rgba(0,0,0,.12) 0 18px,transparent 18px 46px),linear-gradient(160deg,#f47b20 0%,#ffb000 48%,#d71920 100%);z-index:-2}.start-screen::after{content:"";position:absolute;right:-90px;top:120px;width:250px;height:520px;background:rgba(255,255,255,.18);transform:rotate(18deg);z-index:-1}.start-brandbar{display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top,0px) + 22px) 22px 12px}.start-mark{width:50px;height:50px;background:#111;color:#ffcc00;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;border:3px solid #ffcc00;box-shadow:6px 6px 0 rgba(0,0,0,.18)}.start-kicker{font-size:12px;text-transform:uppercase;font-weight:800;letter-spacing:.08em}.start-title{font-size:34px;font-weight:900;line-height:1}.start-stage{margin:12px 18px;background:rgba(255,255,255,.92);border:3px solid #111;box-shadow:10px 10px 0 rgba(0,0,0,.22);padding:20px 18px 18px}.start-ribbon{display:inline-block;background:#111;color:#ffcc00;padding:7px 10px;font-size:12px;font-weight:900;letter-spacing:.06em;margin-bottom:14px}.start-stage h2{font-size:42px;line-height:1;margin:0 0 10px;font-weight:900}.start-stage p{font-size:16px;line-height:1.45;margin:0 0 18px;color:#333}.start-primary{width:100%;border:0;background:#d71920;color:#fff;padding:17px;border-radius:10px;font-size:20px;font-weight:900;box-shadow:0 4px 0 #8b1015}.start-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.start-actions button{border:2px solid #111;background:#ffcc00;color:#111;border-radius:9px;padding:13px;font-size:16px;font-weight:900}.start-footer{display:flex;justify-content:space-between;gap:10px;padding:12px 18px calc(env(safe-area-inset-bottom,0px) + 16px);font-size:12px;font-weight:800;background:rgba(0,0,0,.2);color:#fff}.start-screen.hidden{display:none}
 </style>
 </head>
 <body>
+<div id="start-screen" class="start-screen">
+  <div class="start-brandbar">
+    <div class="start-mark">H</div>
+    <div>
+      <div class="start-kicker">Asystent magazynowy</div>
+      <div class="start-title">Hornbach</div>
+    </div>
+  </div>
+  <div class="start-stage">
+    <div class="start-ribbon">REGAÅY Â· LISTY Â· EAN</div>
+    <h2>Start pracy</h2>
+    <p>Wyszukaj towar gÅ‚osem, sprawdÅº pozycjÄ™ i przejdÅº prosto do regaÅ‚u albo listy.</p>
+    <button class="start-primary" onclick="enterApp('add')">Start</button>
+    <div class="start-actions">
+      <button onclick="enterApp('shelf')">RegaÅ‚y</button>
+      <button onclick="enterApp('list')">Lista</button>
+    </div>
+  </div>
+  <div class="start-footer">
+    <span id="start-data-status">Åadowanie danych...</span>
+    <span>Tablet Â· Chrome</span>
+  </div>
+</div>
 <div id="app">
   <div class="topbar">
     <h1>Magazyn Hornbach</h1>
@@ -163,6 +189,16 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 @media(max-width:520px){.shelf-multi-grid{gap:4px;padding:4px}.shelf-mini .shelf-sign{font-size:9px;padding:4px 1px}.shelf-mini .shelf-row{min-height:10px}.shelf-mini .shelf-svgwrap{height:8px}.shelf-mini .shelf-bn{font-size:5px}}
 </style>
 <script>
+
+function enterApp(tab){
+  const screen=document.getElementById('start-screen');
+  if(screen)screen.classList.add('hidden');
+  if(tab)showTab(tab);
+}
+function updateStartStatus(){
+  const el=document.getElementById('start-data-status');
+  if(el)el.textContent=(db&&db.length)?('Dane gotowe: '+db.length+' pozycji'):'Åadowanie danych...';
+}
 let db=[], listEditing=false, activeListHitIds=[];
 function loadDB(){try{db=JSON.parse(localStorage.getItem('mag_v2')||'[]');}catch(e){db=[];}updateCount();}
 function saveDB(){localStorage.setItem('mag_v2',JSON.stringify(db));updateCount();}
@@ -1641,7 +1677,7 @@ function loadSupabaseCache(){
     Object.keys(SHELVES).forEach(k=>delete SHELVES[k]);
     Object.assign(SHELVES,cached.shelves);
     db=cached.db;
-    updateCount();
+    updateCount();updateStartStatus();
     setStartupStatus('Dane offline z ostatniego pobrania', true);
     return true;
   }catch(e){return false;}
